@@ -155,9 +155,7 @@ app.use("/client", express.static(__dirname + '/client'));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
-http.listen(3000, function() {
-  console.log('Server running on localhost:3000');
-});
+http.listen(process.env.PORT);
 
 io.on('connection', function(socket) {
   console.log('a user connected');
