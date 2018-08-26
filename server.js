@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path')
 const app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
@@ -152,9 +151,9 @@ function Player(x, y, id) {
   }
 }
 
-app.use("/client", express.static(__dirname + '/../client'));
+app.use("/client", express.static(__dirname + '/client'));
 app.get('/', function(req, res) {
-  res.sendFile('index.html', { root: '../client' });
+  res.sendFile(__dirname + '/client/index.html');
 });
 http.listen(3000, function() {
   console.log('Server running on localhost:3000');
