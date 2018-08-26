@@ -1,0 +1,45 @@
+{
+  "weapons": {
+    "ar": {
+      "ammoType": "ar",
+      "damage": 35,
+      "magSize": 30,
+      "bulletSpeed": 50,
+      "fireRate": 600,
+      "accuracy": 0.9,
+      "name": "ar"
+    },
+    "smg": {
+      "ammoType": "smg",
+      "damage": 24,
+      "magSize": 36,
+      "bulletSpeed": 42,
+      "fireRate": 900,
+      "accuracy": 0.75,
+      "name": "smg"
+    },
+    "pistol": {
+      "ammoType": "pistol",
+      "damage": 40,
+      "magSize": 12,
+      "bulletSpeed": 50,
+      "fireRate": 250,
+      "accuracy": 0.95,
+      "name": "pistol"
+    },
+    "rocket": {
+      "ammoType": "explosive",
+      "damage": 100,
+      "magSize": 1,
+      "bulletSpeed": 15,
+      "fireRate": null,
+      "accuracy": 0.95,
+      "name": "rocket"
+    }
+  },
+  "consumables": {
+    "a": "b",
+    "c": "d",
+    "e": "f"
+  }
+}

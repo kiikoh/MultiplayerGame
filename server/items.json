@@ -1,0 +1,59 @@
+{
+  "weapons": {
+    "ar": {
+      "damage": 35,
+      "loaded" : 30,
+      "magSize": 30,
+      "bulletSpeed": 15,
+      "fireCooldown": 3,
+      "reloadTime": 35,
+      "accuracy": 0.9,
+      "name": "ar",
+      "r": 175,
+      "g": 0,
+      "b": 0
+    },
+    "smg": {
+      "damage": 24,
+      "loaded" : 36,
+      "magSize": 36,
+      "bulletSpeed": 13,
+      "fireCooldown": 1,
+      "reloadTime": 25,
+      "accuracy": 0.75,
+      "name": "smg",
+      "r": 50,
+      "g": 200,
+      "b": 50
+    },
+    "pistol": {
+      "damage": 40,
+      "loaded" : 12,
+      "magSize": 12,
+      "bulletSpeed": 18,
+      "fireCooldown": 5,
+      "reloadTime": 15,
+      "accuracy": 0.95,
+      "r": 0,
+      "g": 0,
+      "b": 175
+    },
+    "rocket": {
+      "damage": 100,
+      "loaded" : 1,
+      "magSize": 1,
+      "bulletSpeed": 11,
+      "fireCooldown": 60,
+      "reloadTime": 60,
+      "accuracy": 0.95,
+      "r": 130,
+      "g": 130,
+      "b": 130
+    }
+  },
+  "consumables": {
+    "a": "b",
+    "c": "d",
+    "e": "f"
+  }
+}
