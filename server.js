@@ -73,7 +73,7 @@ function Player(x, y, id) {
   this.size = 75;
   this.reloading = false;
   this.sinceReload = 0;
-  this.speed = 8;
+  this.speed = 12;
   this.direction = 90;
   this.health = 100;
   this.shield = 100;
