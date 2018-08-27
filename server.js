@@ -4,13 +4,14 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 const World = require('./world');
-const tickrate = 50;
+const Bullet = require('./bullet');
+const tickrate = 35;
 
-let width = 5000,
-  height = 5000;
+let width = 2500,
+  height = 2500;
 let players = {};
 let ids = [];
-let world = new World(width, height, 500);
+let world = new World(width, height, 100);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 let bullets = [];
 //helper methods
@@ -36,32 +37,6 @@ function dist(x1, y1, x2, y2) {
 function map(n, start1, stop1, start2, stop2) {
   return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 };
-
-function Bullet(x, y, dir, id, weapon) {
-  this.shooter = id;
-  this.weaponType = weapon;
-  this.size = 5;
-  this.x = x;
-  this.y = y;
-  this.direction = dir + map((Math.random() - .5), -.5, .5, -7 / this.weaponType.accuracy, 7 / this.weaponType.accuracy);
-  this.bulletSpeed = this.weaponType.bulletSpeed;
-  this.age = 0;
-
-  this.update = function() {
-    if (this.x > 0 || this.x < width || this.y > 0 || this.y < height) {
-      this.y += this.bulletSpeed * Math.sin(this.direction * Math.PI / 180);
-      this.x += this.bulletSpeed * Math.cos(this.direction * Math.PI / 180);
-    }
-    this.age++;
-    if (this.age > 150) {
-      bullets.splice(0, 1);
-    }
-  }
-
-  this.getDamage = function() {
-    return this.weaponType.damage;
-  }
-}
 
 function Player(x, y, id) {
   this.id = id;
@@ -253,3 +228,8 @@ setInterval(function() {
   // console.log({ players: players, ids: ids, world: world });
   io.emit('data', { players: players, ids: ids, world: world, bullets: bullets });
 }, 1000 / tickrate);
+
+module.exports = {
+  bullets,
+  players
+}
