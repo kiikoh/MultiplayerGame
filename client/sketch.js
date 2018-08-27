@@ -54,7 +54,7 @@ function drawAllFromServer(data) {
     }
     noFill();
     stroke(30);
-    rect(-data.players[myID].size / 2, -data.players[myID].size / 2, data.world.width + data.players[myID].size / 2, data.world.height + data.players[myID].size / 2);
+    rect(0, 0, data.world.width, data.world.height);
     pop();
     hud.show();
     if (mouseIsPressed)
