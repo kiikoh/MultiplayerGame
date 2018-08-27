@@ -10,7 +10,7 @@ let width = 2500,
   height = 2500;
 let players = {};
 let ids = [];
-let world = new World(width, height, 500);
+let world = new World(width, height, 100);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 let bullets = [];
 //helper methods
