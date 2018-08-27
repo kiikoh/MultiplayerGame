@@ -54,11 +54,7 @@ function Bullet(x, y, dir, id, weapon) {
     }
     this.age++;
     if (this.age > 150) {
-<<<<<<< HEAD
       bullets.splice(0, 1);
-=======
-      module.exports.bullets.splice(0, 1);
->>>>>>> 43cb38e43a3de4cd7dfadad4b78f64b6910ec57f
     }
   }
 
