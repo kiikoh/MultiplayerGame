@@ -6,8 +6,8 @@ const fs = require('fs');
 const World = require('./world');
 const tickrate = 35;
 
-let width = 5000,
-  height = 5000;
+let width = 2500,
+  height = 2500;
 let players = {};
 let ids = [];
 let world = new World(width, height, 500);
