@@ -4,7 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 const World = require('./world');
-const tickrate = 25;
+const tickrate = 35;
 
 let width = 5000,
   height = 5000;
@@ -73,7 +73,7 @@ function Player(x, y, id) {
   this.size = 75;
   this.reloading = false;
   this.sinceReload = 0;
-  this.speed = 15;
+  this.speed = 12;
   this.direction = 90;
   this.health = 100;
   this.shield = 100;
