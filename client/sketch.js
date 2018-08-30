@@ -53,7 +53,8 @@ function drawAllFromServer(data) {
       ellipse(bullet.x, bullet.y, bullet.size, bullet.size);
     }
     noFill();
-    stroke(30);
+    strokeWeight(5);
+    stroke(170, 0, 0);
     rect(0, 0, data.world.width, data.world.height);
     pop();
     hud.show();

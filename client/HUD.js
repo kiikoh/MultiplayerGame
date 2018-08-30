@@ -18,6 +18,7 @@ function HUD() {
           textSize(18);
           text(this.player.items[i].loaded + '/' + this.player.items[i].magSize, 10 + width - this.invBarSize + i * this.invBarSize / 5, height - 10);
         }
+        text(i + 1, 6 + width - this.invBarSize + i * this.invBarSize / 5, height - this.invBarSize / 5 + 22);
       }
       noFill();
       stroke(140);
