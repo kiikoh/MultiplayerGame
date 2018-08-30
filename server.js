@@ -4,7 +4,7 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 const World = require('./world');
-const tickrate = 35;
+const tickrate = 50;
 
 let width = 2500,
   height = 2500;
@@ -81,6 +81,8 @@ function Player(x, y, id) {
   this.selected = 0; //an index of this.items
   this.sinceLastShot = Infinity;
   this.items = [null, null, null, null, null];
+  this.alive = true;
+  this.kills = [];
 
   this.fire = function(dir) {
     if (this.selectedItem().loaded > 0 && !this.reloading) {
@@ -120,7 +122,7 @@ function Player(x, y, id) {
     for (let i = bullets.length - 1; i >= 0; i--) {
       let bullet = bullets[i];
       if (bullet.shooter !== this.id) {
-        if (dist(this.x, this.y, bullet.x, bullet.y) < this.size / 2 + bullet.size / 2) { //&& !bullet.alreadyHit(this.id)) {
+        if (dist(this.x, this.y, bullet.x, bullet.y) < this.size / 2 + bullet.size / 2) {
           this.shield -= bullet.getDamage();
           if (this.shield < 0) {
             this.health += this.shield;
@@ -128,6 +130,8 @@ function Player(x, y, id) {
           }
           if (this.health < 0) {
             this.health = 0;
+            players[bullet.shooter].kills.push(this.id);
+            this.alive = false;
           }
           bullets.splice(0, 1);
         }
@@ -161,10 +165,9 @@ if (process.env.PORT) {
   });
 } else {
   http.listen(3000, function(x) {
-    console.log('Server running on localhost:3000');
+    console.log('Server running on localhost:' + 3000);
   });
 }
-
 
 io.on('connection', function(socket) {
   console.log('a user connected');
@@ -232,32 +235,34 @@ io.on('connection', function(socket) {
 setInterval(function() {
   for (id of ids) {
     let player = players[id];
-    player.checkCollision();
-    player.sinceLastShot++;
-    if (player.reloading) {
-      player.sinceReload++;
-      if (player.sinceReload > player.selectedItem().reloadTime) {
-        player.reloading = false;
-        player.selectedItem().loaded = player.selectedItem().magSize;
+    if (player.alive) {
+      player.checkCollision();
+      player.sinceLastShot++;
+      if (player.reloading) {
+        player.sinceReload++;
+        if (player.sinceReload > player.selectedItem().reloadTime) {
+          player.reloading = false;
+          player.selectedItem().loaded = player.selectedItem().magSize;
+        }
+      } else {
+        player.sinceReload = 0;
       }
-    } else {
-      player.sinceReload = 0;
+      if (player.movement[0] && player.y > 0) {
+        player.y -= player.speed;
+      }
+      if (player.movement[1] && player.y < height) {
+        player.y += player.speed;
+      }
+      if (player.movement[2] && player.x > 0) {
+        player.x -= player.speed;
+      }
+      if (player.movement[3] && player.x < width) {
+        player.x += player.speed;
+      }
     }
-    if (player.movement[0] && player.y > 0) {
-      player.y -= player.speed;
+    for (bullet of bullets) {
+      bullet.update();
     }
-    if (player.movement[1] && player.y < height) {
-      player.y += player.speed;
-    }
-    if (player.movement[2] && player.x > 0) {
-      player.x -= player.speed;
-    }
-    if (player.movement[3] && player.x < width) {
-      player.x += player.speed;
-    }
-  }
-  for (bullet of bullets) {
-    bullet.update();
   }
   // console.log({ players: players, ids: ids, world: world });
   io.emit('data', { players: players, ids: ids, world: world, bullets: bullets });

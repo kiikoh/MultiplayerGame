@@ -18,6 +18,7 @@ function HUD() {
           textSize(18);
           text(this.player.items[i].loaded + '/' + this.player.items[i].magSize, 10 + width - this.invBarSize + i * this.invBarSize / 5, height - 10);
         }
+        fill(255);
         text(i + 1, 6 + width - this.invBarSize + i * this.invBarSize / 5, height - this.invBarSize / 5 + 22);
       }
       noFill();
@@ -54,6 +55,10 @@ function HUD() {
       line(mouseX, mouseY + 15, mouseX, mouseY + 5);
       line(mouseX, mouseY - 15, mouseX, mouseY - 5);
       stroke(0);
+      //kill counter
+      textSize(24);
+      fill(255);
+      text('Kills: ' + this.player.kills.length, width - 75, height - 12 - this.invBarSize / 5);
     }
   }
 }

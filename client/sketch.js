@@ -30,15 +30,19 @@ function drawAllFromServer(data) {
     translate(width / 2, height / 2);
     translate(-data.players[myID].x, -data.players[myID].y);
     for (id of data.ids) {
-      strokeWeight(1);
-      fill(toColor(data.players[id].topColor));
-      ellipse(data.players[id].x, data.players[id].y, data.players[id].size);
-      fill(toColor(data.players[id].bottomColor));
-      angleMode(DEGREES);
-      if (id === myID)
-        arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, atan2(mouseY - height / 2, mouseX - width / 2) + 90, atan2(mouseY - height / 2, mouseX - width / 2) - 90);
-      else
-        arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, 0, -180);
+      if (data.players[id].alive) {
+        strokeWeight(1);
+        fill(toColor(data.players[id].topColor));
+        ellipse(data.players[id].x, data.players[id].y, data.players[id].size);
+        fill(toColor(data.players[id].bottomColor));
+        angleMode(DEGREES);
+        if (id === myID)
+          arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, atan2(mouseY - height / 2, mouseX - width / 2) + 90, atan2(mouseY - height / 2, mouseX - width / 2) - 90);
+        else
+          arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, 0, -180);
+      } else if (id === myID) {
+        location.reload();
+      }
     }
     //draw items
     for (item of data.world.items) {
