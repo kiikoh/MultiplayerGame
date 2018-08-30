@@ -129,7 +129,7 @@ function Player(x, y, id) {
             this.health += this.shield;
             this.shield = 0;
           }
-          if (this.health < 0) {
+          if (this.health < 0 && this.alive) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
             this.alive = false;
