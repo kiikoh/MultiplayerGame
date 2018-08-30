@@ -6,11 +6,12 @@ const fs = require('fs');
 const World = require('./world');
 const tickrate = 50;
 
-let width = 2500,
-  height = 2500;
+let width = 2000,
+  height = 1500,
+  items = Math.floor((width * height) / 100000);
 let players = {};
 let ids = [];
-let world = new World(width, height, 100);
+let world = new World(width, height, items);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 let bullets = [];
 //helper methods
