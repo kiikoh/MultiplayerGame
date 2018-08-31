@@ -8,11 +8,13 @@ function HUD() {
       strokeWeight(4);
       for (let i = 0; i < this.player.items.length; i++) {
         if (this.player.items[i]) {
-          fill(this.player.items[i].r, this.player.items[i].g, this.player.items[i].b);
+          fill(toColor(this.player.items[i]));
         } else {
           fill(200);
         }
         rect(width - this.invBarSize + i * this.invBarSize / 5, height - this.invBarSize / 5, this.invBarSize / 5, this.invBarSize / 5);
+        if (this.player.items[i])
+          image(images[this.player.items[i].name], width - this.invBarSize + i * this.invBarSize / 5 + 7, height - this.invBarSize / 5 + 7, this.invBarSize / 5 - 14, this.invBarSize / 5 - 14)
         fill(230);
         strokeWeight(2.5);
         textSize(24);
@@ -53,7 +55,7 @@ function HUD() {
       strokeWeight(4);
       if (this.player.sinceReload !== 0) {
         arc(mouseX, mouseY, 50, 50, 0, map(this.player.sinceReload / this.player.items[this.player.selected].reloadTime, 0, 1, 0, 360));
-      } else if (this.player.sinceUse !== 0) {
+      } else if (this.player.sinceUse !== 0 && this.player.items[this.player.selected]) {
         arc(mouseX, mouseY, 50, 50, 0, map(this.player.sinceUse / this.player.items[this.player.selected].useTime, 0, 1, 0, 360));
       }
       //crosshair
@@ -67,7 +69,6 @@ function HUD() {
       textSize(24);
       fill(255);
       text('Kills: ' + this.player.kills.length, width - 75, height - 12 - this.invBarSize / 5);
-      console.log(this.player.kills);
     }
   }
 }

@@ -35,9 +35,9 @@
       "fireCooldown": 4,
       "reloadTime": 15,
       "accuracy": 3,
-      "r": 0,
-      "g": 0,
-      "b": 175
+      "r": 250,
+      "g": 218,
+      "b": 94
     },
     "rocket": {
       "name":"Rocket",

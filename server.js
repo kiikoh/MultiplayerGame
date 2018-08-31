@@ -6,8 +6,8 @@ const fs = require('fs');
 const World = require('./world');
 const tickrate = 50;
 
-let width = 1000,
-  height = 750,
+let width = 2000,
+  height = 1500,
   items = Math.floor((width * height) / 100000);
 let players = {};
 let ids = [];
@@ -74,7 +74,7 @@ function Player(x, y, id) {
   this.size = 75;
   this.reloading = false;
   this.sinceReload = 0;
-  this.speed = 12;
+  this.speed = 10;
   this.direction = 90;
   this.health = 100;
   this.shield = 100;

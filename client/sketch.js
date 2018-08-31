@@ -4,6 +4,7 @@ const socket = io();
 let ready = false;
 let myID;
 let selected = 0;
+let images = {};
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -17,6 +18,17 @@ socket.on('connect', function() {
   });
 });
 
+function preload() {
+  let path = 'client/images/'
+  images.AR = loadImage(path + 'ar.png');
+  images.SMG = loadImage(path + 'smg.png');
+  images.Pistol = loadImage(path + 'pistol.png');
+  images.Rocket = loadImage(path + 'rocket.png');
+  images.Medkit = loadImage(path + 'medkit.png');
+  images.Shield = loadImage(path + 'shield.png');
+  images.Chug = loadImage(path + 'chug.png');
+}
+
 function toColor(obj) {
   return color(obj.r, obj.g, obj.b);
 }
@@ -28,6 +40,7 @@ function drawAllFromServer(data) {
     // draw players
     push();
     translate(width / 2, height / 2);
+    scale(.8);
     translate(-data.players[myID].x, -data.players[myID].y);
     for (id of data.ids) {
       if (data.players[id].alive) {
@@ -50,6 +63,8 @@ function drawAllFromServer(data) {
         strokeWeight(1);
         fill(toColor(item.item));
         ellipse(item.x, item.y, data.world.itemSize);
+        let size = 2.25 * sqrt(data.world.itemSize);
+        image(images[item.item.name], item.x - size, item.y - size, 2 * size, 2 * size);
       }
     }
     for (bullet of data.bullets) {
@@ -65,10 +80,6 @@ function drawAllFromServer(data) {
     if (mouseIsPressed)
       socket.emit('requestFire', { dir: atan2(mouseY - height / 2, mouseX - width / 2), key: mouseButton });
   }
-}
-
-function preload() {
-  // itemsList = loadJSON('client/items.json');
 }
 
 function setup() {
