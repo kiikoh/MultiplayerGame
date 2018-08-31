@@ -41,7 +41,7 @@ function map(n, start1, stop1, start2, stop2) {
 function Bullet(x, y, dir, id, weapon) {
   this.shooter = id;
   this.weaponType = weapon;
-  this.size = 5;
+  this.size = 10;
   this.x = x;
   this.y = y;
   this.direction = dir + map((Math.random() - .5), -.5, .5, -this.weaponType.accuracy, this.weaponType.accuracy);
