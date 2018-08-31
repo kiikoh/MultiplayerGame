@@ -15,13 +15,13 @@ module.exports =
 
     this.lootTable = {
       "weapons": ['ar', 'ar', 'rocket', 'pistol', 'pistol', 'smg', 'smg'],
-      "consumables": []
+      "consumables": ['medkit', 'medkit', 'shield', 'shield', 'chug']
     }
 
     this.generateItem = function() {
-      let group = Math.random() > 0 ? 'weapons' : 'consumables';
+      let group = Math.random() > 0.3 ? 'weapons' : 'consumables'; // 30% of items are consumables
       let itemName = group === 'weapons' ? this.lootTable.weapons[random(this.lootTable.weapons.length)] : this.lootTable.consumables[random(this.lootTable.consumables.length)];
-      return JSON.parse(JSON.stringify(itemsList[group][itemName]));
+      return JSON.parse(JSON.stringify(itemsList[group][itemName])); //Copies the object's  values, not the pointer
     }
 
     for (var i = 0; i < this.items.length; i++) {

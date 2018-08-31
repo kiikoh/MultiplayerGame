@@ -1,6 +1,7 @@
 {
   "weapons": {
     "ar": {
+      "name":"AR",
       "damage": 35,
       "loaded" : 30,
       "magSize": 30,
@@ -8,12 +9,12 @@
       "fireCooldown": 3,
       "reloadTime": 35,
       "accuracy": 0.9,
-      "name": "ar",
       "r": 175,
       "g": 0,
       "b": 0
     },
     "smg": {
+      "name":"SMG",
       "damage": 24,
       "loaded" : 36,
       "magSize": 36,
@@ -21,12 +22,12 @@
       "fireCooldown": 1,
       "reloadTime": 25,
       "accuracy": 0.75,
-      "name": "smg",
       "r": 50,
       "g": 200,
       "b": 50
     },
     "pistol": {
+      "name":"Pistol",
       "damage": 40,
       "loaded" : 12,
       "magSize": 12,
@@ -39,6 +40,7 @@
       "b": 175
     },
     "rocket": {
+      "name":"Rocket",
       "damage": 100,
       "loaded" : 1,
       "magSize": 1,
@@ -52,8 +54,32 @@
     }
   },
   "consumables": {
-    "a": "b",
-    "c": "d",
-    "e": "f"
+    "medkit": {
+      "name":"Medkit",
+      "health": 100,
+      "shield": 0,
+      "useTime": 150,
+      "r": 230,
+      "g": 120,
+      "b": 120
+    },
+    "shield": {
+      "name":"Shield",
+      "health": 0,
+      "shield": 100,
+      "useTime": 150,
+      "r": 130,
+      "g": 130,
+      "b": 255
+    },
+    "chug": {
+      "name":"Chug",
+      "health": 100,
+      "shield": 100,
+      "useTime": 250,
+      "r": 183,
+      "g": 124,
+      "b": 14
+    }
   }
 }

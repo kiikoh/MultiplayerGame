@@ -13,11 +13,17 @@ function HUD() {
           fill(200);
         }
         rect(width - this.invBarSize + i * this.invBarSize / 5, height - this.invBarSize / 5, this.invBarSize / 5, this.invBarSize / 5);
-        if (this.player.items[i]) {
-          fill(230);
-          textSize(18);
-          text(this.player.items[i].loaded + '/' + this.player.items[i].magSize, 10 + width - this.invBarSize + i * this.invBarSize / 5, height - 10);
+        fill(230);
+        strokeWeight(2.5);
+        textSize(24);
+        if (this.player.items[i]) { //only for weapons
+          if (this.player.items[i].loaded !== undefined) {
+            text(this.player.items[i].loaded + '/' + this.player.items[i].magSize, 10 + width - this.invBarSize + i * this.invBarSize / 5, height - 10);
+          } else if (this.player.items[i].name) {
+            text(this.player.items[i].name, 10 + width - this.invBarSize + i * this.invBarSize / 5, height - 10);
+          }
         }
+        strokeWeight(4);
         fill(255);
         text(i + 1, 6 + width - this.invBarSize + i * this.invBarSize / 5, height - this.invBarSize / 5 + 22);
       }
@@ -33,7 +39,7 @@ function HUD() {
       fill(0);
       rect(width / 2 - 100, height - 50, 200, 25);
       rect(width / 2 - 100, height - 80, 200, 25);
-      fill(0, 0, 175);
+      fill(0, 0, 130);
       rect(width / 2 - 100, height - 80, 2 * this.player.shield, 25);
       fill(0, 175, 0);
       rect(width / 2 - 100, height - 50, 2 * this.player.health, 25);
@@ -47,6 +53,8 @@ function HUD() {
       strokeWeight(4);
       if (this.player.sinceReload !== 0) {
         arc(mouseX, mouseY, 50, 50, 0, map(this.player.sinceReload / this.player.items[this.player.selected].reloadTime, 0, 1, 0, 360));
+      } else if (this.player.sinceUse !== 0) {
+        arc(mouseX, mouseY, 50, 50, 0, map(this.player.sinceUse / this.player.items[this.player.selected].useTime, 0, 1, 0, 360));
       }
       //crosshair
       stroke(0, 199, 255);

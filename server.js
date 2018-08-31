@@ -84,6 +84,8 @@ function Player(x, y, id) {
   this.items = [null, null, null, null, null];
   this.alive = true;
   this.kills = [];
+  this.usingConsumable = false;
+  this.sinceUse = 0;
 
   this.fire = function(dir) {
     if (this.selectedItem().loaded > 0 && !this.reloading) {
@@ -183,9 +185,14 @@ io.on('connection', function(socket) {
   });
 
   socket.on('requestFire', function(mouse) {
-    if (players[socket.id].selectedItem() && players[socket.id].sinceLastShot > players[socket.id].selectedItem().fireCooldown) {
-      players[socket.id].fire(mouse.dir);
-      players[socket.id].sinceLastShot = 0;
+    if (players[socket.id].selectedItem()) {
+      if (players[socket.id].selectedItem().magSize && players[socket.id].sinceLastShot > players[socket.id].selectedItem().fireCooldown) { //if holding a weapon and the fire rate is under control
+        players[socket.id].fire(mouse.dir);
+        players[socket.id].sinceLastShot = 0;
+      }
+      if (players[socket.id].selectedItem().health !== undefined) { //holding a consumable
+        players[socket.id].usingConsumable = true;
+      }
     }
   });
 
@@ -206,16 +213,8 @@ io.on('connection', function(socket) {
     } else if (key === 'R') {
       if (players[socket.id].selectedItem() && players[socket.id].selectedItem().magSize !== players[socket.id].selectedItem().loaded)
         players[socket.id].reloading = true;
-    } else if (key === '1' && !players[socket.id].reloading) {
-      players[socket.id].selected = 0;
-    } else if (key === '2' && !players[socket.id].reloading) {
-      players[socket.id].selected = 1;
-    } else if (key === '3' && !players[socket.id].reloading) {
-      players[socket.id].selected = 2;
-    } else if (key === '4' && !players[socket.id].reloading) {
-      players[socket.id].selected = 3;
-    } else if (key === '5' && !players[socket.id].reloading) {
-      players[socket.id].selected = 4;
+    } else if (0 < key && key < 6 && !players[socket.id].reloading && !players[socket.id].usingConsumable) {
+      players[socket.id].selected = key - 1;
     }
   });
 
@@ -248,17 +247,36 @@ setInterval(function() {
       } else {
         player.sinceReload = 0;
       }
+      if (player.usingConsumable) {
+        player.sinceUse++;
+        if (player.sinceUse > player.selectedItem().useTime) {
+          player.usingConsumable = false;
+          if (player.selectedItem().health) {
+            player.shield = 100;
+          }
+          if (player.selectedItem().shield) {
+            player.shield = 100;
+          }
+          player.items[player.selected] = null;
+        }
+      } else {
+        player.sinceUse = 0;
+      }
       if (player.movement[0] && player.y > 0) {
         player.y -= player.speed;
+        player.usingConsumable = false;
       }
       if (player.movement[1] && player.y < height) {
         player.y += player.speed;
+        player.usingConsumable = false;
       }
       if (player.movement[2] && player.x > 0) {
         player.x -= player.speed;
+        player.usingConsumable = false;
       }
       if (player.movement[3] && player.x < width) {
         player.x += player.speed;
+        player.usingConsumable = false;
       }
     }
     for (bullet of bullets) {
