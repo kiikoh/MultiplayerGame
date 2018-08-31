@@ -94,6 +94,24 @@ function Player(x, y, id) {
     }
   }
 
+  this.dropAllItems = function() {
+    let itemDropper = [];
+    for (item of this.items) {
+      if (item) {
+        itemDropper.push(item);
+      }
+    }
+    if (itemDropper[0]) {
+      for (let index = 0; index < itemDropper.length; index++) {
+        if (itemDropper[index]) {
+          let item = { x: this.x + 60 * Math.cos(index * (2 * Math.PI) / itemDropper.length), y: this.y + 60 * Math.sin(index * (2 * Math.PI) / itemDropper.length), item: itemDropper[index] };
+          world.items[world.items.indexOf(null)] = item;
+          itemDropper[index] = null;
+        }
+      }
+    }
+  }
+
   this.getNearbyItemIndex = function() {
     for (var i = 0; i < world.items.length; i++) {
       if (world.items[i]) {
@@ -135,6 +153,7 @@ function Player(x, y, id) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
             this.alive = false;
+            this.dropAllItems();
           }
           bullets.splice(0, 1);
         }
