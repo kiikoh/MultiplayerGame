@@ -271,7 +271,7 @@ setInterval(function() {
         if (player.sinceUse > player.selectedItem().useTime) {
           player.usingConsumable = false;
           if (player.selectedItem().health) {
-            player.shield = 100;
+            player.health = 100;
           }
           if (player.selectedItem().shield) {
             player.shield = 100;
