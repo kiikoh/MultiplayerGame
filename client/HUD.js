@@ -67,6 +67,7 @@ function HUD() {
       textSize(24);
       fill(255);
       text('Kills: ' + this.player.kills.length, width - 75, height - 12 - this.invBarSize / 5);
+      console.log(this.player.kills);
     }
   }
 }

@@ -6,8 +6,8 @@ const fs = require('fs');
 const World = require('./world');
 const tickrate = 50;
 
-let width = 2000,
-  height = 1500,
+let width = 1000,
+  height = 750,
   items = Math.floor((width * height) / 100000);
 let players = {};
 let ids = [];
@@ -44,7 +44,7 @@ function Bullet(x, y, dir, id, weapon) {
   this.size = 5;
   this.x = x;
   this.y = y;
-  this.direction = dir + map((Math.random() - .5), -.5, .5, -7 / this.weaponType.accuracy, 7 / this.weaponType.accuracy);
+  this.direction = dir + map((Math.random() - .5), -.5, .5, -this.weaponType.accuracy, this.weaponType.accuracy);
   this.bulletSpeed = this.weaponType.bulletSpeed;
   this.age = 0;
 
@@ -131,7 +131,7 @@ function Player(x, y, id) {
             this.health += this.shield;
             this.shield = 0;
           }
-          if (this.health < 0 && this.alive) {
+          if (this.health <= 0 && this.alive) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
             this.alive = false;
