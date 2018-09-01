@@ -347,7 +347,6 @@ setInterval(function() {
   } else { //lobby mode
     if (ids.length > 1) {
       status.timeToRound--;
-      console.log(ids.length, status.timeToRound / tickrate);
     } else {
       status.timeToRound = beforeGameTimer * tickrate;
     }
