@@ -5,15 +5,24 @@ const io = require('socket.io')(http);
 const fs = require('fs');
 const World = require('./world');
 const tickrate = 50;
+const beforeGameTimer = 10;
 
 let width = 2000,
   height = 1500,
   items = Math.floor((width * height) / 100000);
+let status = {
+  timeToRound: beforeGameTimer * tickrate,
+  tickrate: tickrate,
+  beforeGameTimer: beforeGameTimer
+};
+
+let playersAlive = 0;
 let players = {};
 let ids = [];
 let world = new World(width, height, items);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 let bullets = [];
+
 //helper methods
 function diff(num1, num2) {
   if (num1 > num2) {
@@ -37,6 +46,18 @@ function dist(x1, y1, x2, y2) {
 function map(n, start1, stop1, start2, stop2) {
   return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 };
+
+function resetRound() {
+  status.timeToRound = beforeGameTimer * tickrate;
+  bullets = [];
+  world = new World(width, height, items);
+  playersAlive = 0;
+  for (id of ids) {
+    players[id] = new Player(random(width), random(height), id);
+    players[id].alive = true;
+    playersAlive++;
+  }
+}
 
 function Bullet(x, y, dir, id, weapon) {
   this.shooter = id;
@@ -82,7 +103,7 @@ function Player(x, y, id) {
   this.selected = 0; //an index of this.items
   this.sinceLastShot = Infinity;
   this.items = [null, null, null, null, null];
-  this.alive = true;
+  this.alive = false;
   this.kills = [];
   this.usingConsumable = false;
   this.sinceUse = 0;
@@ -153,6 +174,7 @@ function Player(x, y, id) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
             this.alive = false;
+            playersAlive--;
             this.dropAllItems();
           }
           bullets.splice(0, 1);
@@ -191,16 +213,31 @@ if (process.env.PORT) {
   });
 }
 
+function addPlayer(id) {
+  players[id] = new Player(random(width), random(height), id);
+  ids.push(id);
+}
+
+function removePlayer(id) {
+  ids.splice(ids.indexOf(id), 1);
+  delete players[id];
+}
+
 io.on('connection', function(socket) {
   console.log('a user connected');
   io.to(socket.id).emit('id', { sockId: socket.id });
-  players[socket.id] = new Player(random(width), random(height), socket.id);
-  ids.push(socket.id);
+  addPlayer(socket.id);
+  if (status.timeToRound > 0) {
+    players[socket.id].alive = true;
+    playersAlive++;
+  }
 
   socket.on('disconnect', function() {
     console.log('user disconnected');
-    ids.splice(ids.indexOf(socket.id), 1);
-    delete players[socket.id];
+    if (players[socket.id].alive) {
+      playersAlive--;
+    }
+    removePlayer(socket.id);
   });
 
   socket.on('requestFire', function(mouse) {
@@ -252,56 +289,67 @@ io.on('connection', function(socket) {
 });
 
 setInterval(function() {
-  for (id of ids) {
-    let player = players[id];
-    if (player.alive) {
-      player.checkCollision();
-      player.sinceLastShot++;
-      if (player.reloading) {
-        player.sinceReload++;
-        if (player.sinceReload > player.selectedItem().reloadTime) {
-          player.reloading = false;
-          player.selectedItem().loaded = player.selectedItem().magSize;
+  if (status.timeToRound < 0) {
+    for (id of ids) {
+      let player = players[id];
+      if (player.alive) {
+        player.checkCollision();
+        player.sinceLastShot++;
+        if (player.reloading) {
+          player.sinceReload++;
+          if (player.sinceReload > player.selectedItem().reloadTime) {
+            player.reloading = false;
+            player.selectedItem().loaded = player.selectedItem().magSize;
+          }
+        } else {
+          player.sinceReload = 0;
         }
-      } else {
-        player.sinceReload = 0;
-      }
-      if (player.usingConsumable) {
-        player.sinceUse++;
-        if (player.sinceUse > player.selectedItem().useTime) {
+        if (player.usingConsumable) {
+          player.sinceUse++;
+          if (player.sinceUse > player.selectedItem().useTime) {
+            player.usingConsumable = false;
+            if (player.selectedItem().health) {
+              player.health = 100;
+            }
+            if (player.selectedItem().shield) {
+              player.shield = 100;
+            }
+            player.items[player.selected] = null;
+          }
+        } else {
+          player.sinceUse = 0;
+        }
+        if (player.movement[0] && player.y > 0) {
+          player.y -= player.speed;
           player.usingConsumable = false;
-          if (player.selectedItem().health) {
-            player.health = 100;
-          }
-          if (player.selectedItem().shield) {
-            player.shield = 100;
-          }
-          player.items[player.selected] = null;
         }
-      } else {
-        player.sinceUse = 0;
+        if (player.movement[1] && player.y < height) {
+          player.y += player.speed;
+          player.usingConsumable = false;
+        }
+        if (player.movement[2] && player.x > 0) {
+          player.x -= player.speed;
+          player.usingConsumable = false;
+        }
+        if (player.movement[3] && player.x < width) {
+          player.x += player.speed;
+          player.usingConsumable = false;
+        }
       }
-      if (player.movement[0] && player.y > 0) {
-        player.y -= player.speed;
-        player.usingConsumable = false;
-      }
-      if (player.movement[1] && player.y < height) {
-        player.y += player.speed;
-        player.usingConsumable = false;
-      }
-      if (player.movement[2] && player.x > 0) {
-        player.x -= player.speed;
-        player.usingConsumable = false;
-      }
-      if (player.movement[3] && player.x < width) {
-        player.x += player.speed;
-        player.usingConsumable = false;
+      for (bullet of bullets) {
+        bullet.update();
       }
     }
-    for (bullet of bullets) {
-      bullet.update();
+    if (playersAlive < 2) { //we have a winner
+      resetRound();
+    }
+  } else { //lobby mode
+    if (ids.length > 1) {
+      status.timeToRound--;
+      console.log(ids.length, status.timeToRound / tickrate);
+    } else {
+      status.timeToRound = beforeGameTimer * tickrate;
     }
   }
-  // console.log({ players: players, ids: ids, world: world });
-  io.emit('data', { players: players, ids: ids, world: world, bullets: bullets });
+  io.emit('data', { status: status, players: players, ids: ids, world: world, bullets: bullets });
 }, 1000 / tickrate);

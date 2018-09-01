@@ -1,6 +1,6 @@
 function HUD() {
   this.player = null;
-  this.invBarSize = 450;
+  this.invBarSize = width / 3;
 
   this.show = function() {
     //Inv bar
@@ -33,9 +33,9 @@ function HUD() {
       stroke(140);
       rect(width - this.invBarSize + this.player.selected * this.invBarSize / 5, height - this.invBarSize / 5, this.invBarSize / 5, this.invBarSize / 5);
       stroke(0);
-      //framerate
-      fill(255);
-      text('FPS : ' + Math.floor(frameRate()), 10, 25);
+      // framerate
+      // fill(255);
+      // text('FPS : ' + Math.floor(frameRate()), 10, 25);
       //healthbars
       strokeWeight(2);
       fill(0);

@@ -5,15 +5,15 @@ let ready = false;
 let myID;
 let selected = 0;
 let images = {};
+let width,
+  height;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
     myID = socketId.sockId;
     console.log(myID);
-    hud = new HUD();
   });
   socket.on('data', function(data) {
-    hud.player = data.players[myID];
     drawAllFromServer(data);
   });
 });
@@ -35,6 +35,7 @@ function toColor(obj) {
 
 function drawAllFromServer(data) {
   if (ready) { //p5 has loaded
+    hud.player = data.players[myID];
     //draw grass
     background(25, 175, 25);
     // draw players
@@ -54,7 +55,11 @@ function drawAllFromServer(data) {
         else
           arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, 0, -180);
       } else if (id === myID) {
-        location.reload();
+        textAlign(CENTER);
+        fill(255);
+        text('Waiting for next game...', data.players[id].x, data.players[id].y);
+        textAlign(LEFT);
+        // location.reload();
       }
     }
     //draw items
@@ -77,6 +82,16 @@ function drawAllFromServer(data) {
     rect(0, 0, data.world.width, data.world.height);
     pop();
     hud.show();
+    //draw loading
+    textAlign(CENTER, CENTER);
+    if (ceil(data.status.timeToRound / data.status.tickrate) > 0 && ceil(data.status.timeToRound / data.status.tickrate) <= data.status.beforeGameTimer) {
+      textSize(192);
+      text(ceil(data.status.timeToRound / data.status.tickrate), width / 2, height / 2);
+    } else if (ceil(data.status.timeToRound / data.status.tickrate) === data.status.beforeGameTimer) {
+      textSize(48);
+      text('Waiting for more players to join the game...', width / 2, height / 2);
+    }
+    textAlign(LEFT, BASELINE);
     if (mouseIsPressed)
       socket.emit('requestFire', { dir: atan2(mouseY - height / 2, mouseX - width / 2), key: mouseButton });
   }
@@ -85,8 +100,10 @@ function drawAllFromServer(data) {
 function setup() {
   noCursor();
   ready = true;
-  createCanvas(1280, 720);
-  // world = new World(width, height, 10);
+  width = windowWidth;
+  height = windowHeight;
+  hud = new HUD();
+  createCanvas(width, height);
 }
 
 function keyPressed() {
