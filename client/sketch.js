@@ -84,7 +84,7 @@ function drawAllFromServer(data) {
     hud.show();
     //draw loading
     textAlign(CENTER, CENTER);
-    if (ceil(data.status.timeToRound / data.status.tickrate) > 0 && ceil(data.status.timeToRound / data.status.tickrate) <= data.status.beforeGameTimer) {
+    if (ceil(data.status.timeToRound / data.status.tickrate) > 0 && ceil(data.status.timeToRound / data.status.tickrate) < data.status.beforeGameTimer) {
       textSize(192);
       text(ceil(data.status.timeToRound / data.status.tickrate), width / 2, height / 2);
     } else if (ceil(data.status.timeToRound / data.status.tickrate) === data.status.beforeGameTimer) {

@@ -165,6 +165,7 @@ function Player(x, y, id) {
       let bullet = bullets[i];
       if (bullet.shooter !== this.id) {
         if (dist(this.x, this.y, bullet.x, bullet.y) < this.size / 2 + bullet.size / 2) {
+          console.log(i);
           this.shield -= bullet.getDamage();
           if (this.shield < 0) {
             this.health += this.shield;
@@ -177,7 +178,7 @@ function Player(x, y, id) {
             playersAlive--;
             this.dropAllItems();
           }
-          bullets.splice(0, 1);
+          bullets.splice(i, 1);
         }
       }
     }
