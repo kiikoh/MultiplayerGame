@@ -47,6 +47,19 @@ function map(n, start1, stop1, start2, stop2) {
   return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
 };
 
+//adds the player by id
+function addPlayer(id) {
+  players[id] = new Player(random(width), random(height), id);
+  ids.push(id);
+}
+
+//removes the player by id
+function removePlayer(id) {
+  ids.splice(ids.indexOf(id), 1);
+  delete players[id];
+}
+
+//resets the game so a new round can begin
 function resetRound() {
   status.timeToRound = status.beforeGameTimer * status.tickrate;
   bullets = [];
@@ -59,20 +72,21 @@ function resetRound() {
   }
 }
 
+//A bullet object
 function Bullet(x, y, dir, id, weapon) {
-  this.shooter = id;
-  this.weaponType = weapon;
   this.size = 10;
   this.x = x;
   this.y = y;
   this.direction = dir + map((Math.random() - .5), -.5, .5, -this.weaponType.accuracy, this.weaponType.accuracy);
-  this.bulletSpeed = this.weaponType.bulletSpeed;
+  this.shooter = id;
+  this.weaponType = weapon;
+  this.speed = this.weaponType.bulletSpeed;
   this.age = 0;
 
   this.update = function() {
     if (this.x > 0 || this.x < width || this.y > 0 || this.y < height) {
-      this.y += this.bulletSpeed * Math.sin(this.direction * Math.PI / 180);
-      this.x += this.bulletSpeed * Math.cos(this.direction * Math.PI / 180);
+      this.y += this.speed * Math.sin(this.direction * Math.PI / 180);
+      this.x += this.speed * Math.cos(this.direction * Math.PI / 180);
     }
     this.age++;
     if (this.age > 150) {
@@ -85,28 +99,29 @@ function Bullet(x, y, dir, id, weapon) {
   }
 }
 
+//A player object
 function Player(x, y, id) {
+  this.alive = false;
   this.id = id;
   this.x = x;
   this.y = y;
+  this.direction = 90;
+  this.size = 75;
+  this.speed = 10;
   this.movement = [false, false, false, false];
   this.topColor = { r: random(255), g: random(255), b: random(255) };
   this.bottomColor = { r: random(255), g: random(255), b: random(255) };
-  this.size = 75;
-  this.reloading = false;
-  this.sinceReload = 0;
-  this.speed = 10;
-  this.direction = 90;
   this.health = 100;
   this.shield = 100;
-  this.invSpace = 5;
   this.selected = 0; //an index of this.items
-  this.sinceLastShot = Infinity;
+  this.invSpace = 5;
   this.items = [null, null, null, null, null];
-  this.alive = false;
+  this.sinceLastShot = Infinity;
   this.kills = [];
   this.usingConsumable = false;
   this.sinceUse = 0;
+  this.reloading = false;
+  this.sinceReload = 0;
 
   this.update = function() {
     this.checkCollision();
@@ -153,58 +168,6 @@ function Player(x, y, id) {
     }
   }
 
-  this.fire = function() {
-    if (this.selectedItem().loaded > 0 && !this.reloading) {
-      bullets.push(new Bullet(this.x, this.y, this.direction, this.id, this.selectedItem()));
-      this.selectedItem().loaded--;
-    }
-  }
-
-  this.dropAllItems = function() {
-    let itemDropper = [];
-    for (item of this.items) {
-      if (item) {
-        itemDropper.push(item);
-      }
-    }
-    if (itemDropper[0]) {
-      for (let index = 0; index < itemDropper.length; index++) {
-        if (itemDropper[index]) {
-          let item = { x: this.x + 60 * Math.cos(index * (2 * Math.PI) / itemDropper.length), y: this.y + 60 * Math.sin(index * (2 * Math.PI) / itemDropper.length), item: itemDropper[index] };
-          world.items[world.items.indexOf(null)] = item;
-          itemDropper[index] = null;
-        }
-      }
-    }
-  }
-
-  this.getNearbyItemIndex = function() {
-    for (var i = 0; i < world.items.length; i++) {
-      if (world.items[i]) {
-        if (dist(world.items[i].x, world.items[i].y, this.x, this.y) < this.size / 2 + world.itemSize / 2) {
-          return i;
-        }
-      }
-    }
-    return -1;
-  }
-
-  this.selectedItem = function() {
-    return this.items[this.selected];
-  }
-
-  this.dropItemIndex = function(index) {
-    if (this.items[index]) {
-      let item = { x: this.x, y: this.y, item: this.items[index] };
-      world.items[world.items.indexOf(null)] = item;
-      this.items[index] = null;
-    }
-  }
-
-  this.firstOpenSlot = function() {
-    return this.items.indexOf(null);
-  }
-
   this.checkCollision = function() {
     for (let i = bullets.length - 1; i >= 0; i--) {
       let bullet = bullets[i];
@@ -228,6 +191,32 @@ function Player(x, y, id) {
     }
   }
 
+  this.fire = function() {
+    if (this.selectedItem().loaded > 0 && !this.reloading) {
+      bullets.push(new Bullet(this.x, this.y, this.direction, this.id, this.selectedItem()));
+      this.selectedItem().loaded--;
+    }
+  }
+
+  this.selectedItem = function() {
+    return this.items[this.selected];
+  }
+
+  this.firstOpenSlot = function() {
+    return this.items.indexOf(null);
+  }
+
+  this.getNearbyItemIndex = function() {
+    for (var i = 0; i < world.items.length; i++) {
+      if (world.items[i]) {
+        if (dist(world.items[i].x, world.items[i].y, this.x, this.y) < this.size / 2 + world.itemSize / 2) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
   this.pickUpItem = function() {
     if (this.getNearbyItemIndex() > -1) {
       let item = world.items[this.getNearbyItemIndex()].item;
@@ -242,12 +231,39 @@ function Player(x, y, id) {
       }
     }
   }
+
+  this.dropItemIndex = function(index) {
+    if (this.items[index]) {
+      let item = { x: this.x, y: this.y, item: this.items[index] };
+      world.items[world.items.indexOf(null)] = item;
+      this.items[index] = null;
+    }
+  }
+
+  this.dropAllItems = function() {
+    let itemDropper = [];
+    for (item of this.items) {
+      if (item) {
+        itemDropper.push(item);
+      }
+    }
+    if (itemDropper[0]) {
+      for (let index = 0; index < itemDropper.length; index++) {
+        if (itemDropper[index]) {
+          let item = { x: this.x + 60 * Math.cos(index * (2 * Math.PI) / itemDropper.length), y: this.y + 60 * Math.sin(index * (2 * Math.PI) / itemDropper.length), item: itemDropper[index] };
+          world.items[world.items.indexOf(null)] = item;
+          itemDropper[index] = null;
+        }
+      }
+    }
+  }
 }
 
 app.use("/client", express.static(__dirname + '/client'));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
+//If running on heroku else use localhost:3000
 if (process.env.PORT) {
   http.listen(process.env.PORT, function(x) {
     console.log('Server running');
@@ -256,16 +272,6 @@ if (process.env.PORT) {
   http.listen(3000, function(x) {
     console.log('Server running on localhost:' + 3000);
   });
-}
-
-function addPlayer(id) {
-  players[id] = new Player(random(width), random(height), id);
-  ids.push(id);
-}
-
-function removePlayer(id) {
-  ids.splice(ids.indexOf(id), 1);
-  delete players[id];
 }
 
 io.on('connection', function(socket) {
@@ -337,6 +343,7 @@ io.on('connection', function(socket) {
   });
 });
 
+//main server method
 setInterval(function() {
   if (status.timeToRound < 0) {
     for (id of ids) {
