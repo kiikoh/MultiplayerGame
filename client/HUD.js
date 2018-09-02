@@ -1,6 +1,8 @@
 function HUD() {
   this.player = null;
+  this.status = null;
   this.invBarSize = width / 3;
+
 
   this.show = function() {
     //Inv bar
@@ -36,6 +38,9 @@ function HUD() {
       // framerate
       // fill(255);
       // text('FPS : ' + Math.floor(frameRate()), 10, 25);
+      //last round winner
+      fill(255);
+      text('Last Winner : ' + this.status.lastWinner, 10, 25);
       //healthbars
       strokeWeight(2);
       fill(0);
@@ -69,6 +74,8 @@ function HUD() {
       textSize(24);
       fill(255);
       text('Kills: ' + this.player.kills.length, width - 75, height - 12 - this.invBarSize / 5);
+      //remaining players
+      text('Alive: ' + this.status.playersAlive, width - 175, height - 12 - this.invBarSize / 5);
     }
   }
 }

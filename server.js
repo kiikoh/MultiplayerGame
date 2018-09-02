@@ -13,7 +13,9 @@ let status = {
   tickrate: 50,
   beforeGameTimer: 10,
   timeToRound: Infinity,
-  playersAlive: 0
+  playersAlive: 0,
+  names: [],
+  lastWinner: 'Anonymous'
 };
 status.timeToRound = status.tickrate * status.beforeGameTimer;
 
@@ -57,6 +59,7 @@ function addPlayer(id) {
 function removePlayer(id) {
   ids.splice(ids.indexOf(id), 1);
   delete players[id];
+  status.names.splice(status.names.indexOf(id), 1);
 }
 
 //resets the game so a new round can begin
@@ -66,8 +69,10 @@ function resetRound() {
   world = new World(width, height, items);
   status.playersAlive = 0;
   for (id of ids) {
+    let name = players[id].name;
     players[id] = new Player(random(width), random(height), id);
     players[id].alive = true;
+    players[id].name = name;
     status.playersAlive++;
   }
 }
@@ -103,6 +108,7 @@ function Bullet(x, y, dir, id, weapon) {
 function Player(x, y, id) {
   this.alive = false;
   this.id = id;
+  this.name = 'Anonymous';
   this.x = x;
   this.y = y;
   this.direction = 90;
@@ -278,13 +284,20 @@ io.on('connection', function(socket) {
   console.log('a user connected');
   io.to(socket.id).emit('id', { sockId: socket.id });
   addPlayer(socket.id);
-  if (status.timeToRound > 0) {
-    players[socket.id].alive = true;
-    status.playersAlive++;
-  }
+
+  socket.on('join', function(data) {
+    console.log('User registered as ' + data.name);
+    players[socket.id].name = data.name;
+    status.names.push(data.name);
+    if (status.timeToRound > 0) {
+      players[socket.id].alive = true;
+      status.playersAlive++;
+    }
+  });
+
 
   socket.on('disconnect', function() {
-    console.log('user disconnected');
+    console.log(players[socket.id].name + ' disconnected');
     if (players[socket.id].alive) {
       status.playersAlive--;
     }
@@ -356,10 +369,16 @@ setInterval(function() {
       bullet.update();
     }
     if (status.playersAlive < 2) { //we have a winner
+      for (id of ids) {
+        let player = players[id];
+        if (player.alive) {
+          status.lastWinner = player.name;
+        }
+      }
       resetRound();
     }
   } else { //lobby mode
-    if (ids.length > 1) {
+    if (status.names.length > 1) {
       status.timeToRound--;
     } else {
       status.timeToRound = status.beforeGameTimer * status.tickrate;

@@ -6,6 +6,8 @@ let images = {};
 let width,
   height;
 let selected = 1;
+let name = '';
+let namePicked = false;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -15,7 +17,18 @@ socket.on('connect', function() {
   socket.on('data', function(data) {
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
-      drawAllFromServer(data);
+      hud.status = data.status;
+      if (data.players[myID].name === 'Anonymous') { //if server has no player name
+        background(170);
+        textAlign(CENTER, CENTER);
+        textSize(96);
+        text('Welcome to CHS Royale', width / 2, height / 8);
+        textSize(48);
+        text('Name: ' + name, width / 2, height / 2);
+        textAlign(LEFT, BASELINE);
+      } else {
+        drawAllFromServer(data);
+      }
     }
   });
 });
@@ -122,14 +135,32 @@ function mouseWheel(event) {
   }
 }
 
+let holdingShift = false;
+
 function keyPressed() {
-  if (0 < key && key < 6) {
-    selected = key;
+  if (namePicked) { //if user has picked a name
+    if (0 < key && key < 6) {
+      selected = key;
+    }
+    socket.emit('pressedKey', { key: key });
+  } else {
+    if (keyCode === 13) {
+      socket.emit('join', { name: name });
+      namePicked = true;
+    } else if (keyCode === 8) {
+      name = name.substring(0, name.length - 1);
+    } else if (keyCode === 16) {
+      holdingShift = true;
+    } else {
+      name += holdingShift ? key : key.toLowerCase();
+    }
   }
-  socket.emit('pressedKey', { key: key });
 }
 
 function keyReleased() {
+  if (keyCode === 16) {
+    holdingShift = false;
+  }
   socket.emit('releasedKey', { key: key });
 
 }
