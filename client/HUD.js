@@ -52,8 +52,8 @@ function HUD() {
       rect(width / 2 - 100, height - 50, 2 * this.player.health, 25);
       fill(255);
       textSize(20);
-      text(this.player.health, width / 2 - 90, height - 30);
-      text(this.player.shield, width / 2 - 90, height - 60);
+      text(ceil(this.player.health), width / 2 - 90, height - 30);
+      text(ceil(this.player.shield), width / 2 - 90, height - 60);
       //reload indicator
       noFill();
       stroke(255);

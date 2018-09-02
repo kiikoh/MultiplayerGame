@@ -15,13 +15,23 @@ module.exports =
 
     this.lootTable = {
       "weapons": ['ar', 'rocket', 'pistol', 'pistol', 'pistol', 'smg', 'smg', 'smg'],
-      "consumables": ['medkit', 'medkit', 'shield', 'shield', 'chug']
+      "consumables": ['medkit', 'medkit', 'shield', 'shield', 'chug'],
+      "tiers": ["common", "common", "common", "common", "common", "uncommon", "uncommon", "uncommon", "uncommon", "rare", "rare", "rare", "epic", "epic", "legendary"]
     }
 
     this.generateItem = function() {
       let group = Math.random() > 0.25 ? 'weapons' : 'consumables'; // 25% of items are consumables
-      let itemName = group === 'weapons' ? this.lootTable.weapons[random(this.lootTable.weapons.length)] : this.lootTable.consumables[random(this.lootTable.consumables.length)];
-      return JSON.parse(JSON.stringify(itemsList[group][itemName])); //Copies the object's  values, not the pointer
+      let itemName = this.lootTable[group][random(this.lootTable[group].length)];
+      let tier = itemsList.tiers[this.lootTable.tiers[random(this.lootTable.tiers.length)]];
+      let item = JSON.parse(JSON.stringify(itemsList[group][itemName]));
+      if (group === 'weapons') {
+        for (var property in tier) {
+          if (tier.hasOwnProperty(property)) { //multiply the two values
+            item[property] *= tier[property];
+          }
+        }
+      }
+      return item; //Copies the object's  values, not the pointer
     }
 
     for (var i = 0; i < this.items.length; i++) {

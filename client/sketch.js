@@ -110,18 +110,19 @@ function drawAllFromServer(data) {
   socket.emit('dir', { dir: dir });
 }
 
-
 function setup() {
   ready = true;
   width = windowWidth;
   height = windowHeight;
   hud = new HUD();
   canvas = createCanvas(width, height);
-  input = createInput().size(400, 50);
+  input = createInput().size(600, 75);
   input.attribute('placeholder', 'Enter your name.');
-  input.style('font-size', '48px');
-  input.style('border-radius', '25px');
+  input.attribute('autofocus', 'true');
+  input.style('font-size', '70px');
+  input.style('border-radius', '37px');
   input.style('text-align', 'center');
+  input.style('border', '2px solid grey');
 }
 
 function mouseWheel(event) {
