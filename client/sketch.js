@@ -8,6 +8,7 @@ let width,
 let selected = 1;
 let name = '';
 let namePicked = false;
+let canvas, input;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -23,10 +24,10 @@ socket.on('connect', function() {
         textAlign(CENTER, CENTER);
         textSize(96);
         text('Welcome to CHS Royale', width / 2, height / 8);
-        textSize(48);
-        text('Name: ' + name, width / 2, height / 2);
         textAlign(LEFT, BASELINE);
+        input.position(width / 2 - input.width / 2, height / 2 - input.height / 2);
       } else {
+        noCursor();
         drawAllFromServer(data);
       }
     }
@@ -111,12 +112,16 @@ function drawAllFromServer(data) {
 
 
 function setup() {
-  noCursor();
   ready = true;
   width = windowWidth;
   height = windowHeight;
   hud = new HUD();
-  createCanvas(width, height);
+  canvas = createCanvas(width, height);
+  input = createInput().size(400, 50);
+  input.attribute('placeholder', 'Enter your name.');
+  input.style('font-size', '48px');
+  input.style('border-radius', '25px');
+  input.style('text-align', 'center');
 }
 
 function mouseWheel(event) {
@@ -124,13 +129,11 @@ function mouseWheel(event) {
     selected--;
     if (selected < 1)
       selected = 5;
-    console.log(selected);
     socket.emit('pressedKey', { key: selected });
   } else { //weapon slot up
     selected++;
     if (selected > 5)
       selected = 1;
-    console.log(selected);
     socket.emit('pressedKey', { key: selected });
   }
 }
@@ -145,14 +148,10 @@ function keyPressed() {
     socket.emit('pressedKey', { key: key });
   } else {
     if (keyCode === 13) {
+      name = input.value();
       socket.emit('join', { name: name });
+      input.remove();
       namePicked = true;
-    } else if (keyCode === 8) {
-      name = name.substring(0, name.length - 1);
-    } else if (keyCode === 16) {
-      holdingShift = true;
-    } else {
-      name += holdingShift ? key : key.toLowerCase();
     }
   }
 }
