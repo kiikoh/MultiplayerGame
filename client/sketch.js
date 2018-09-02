@@ -50,10 +50,7 @@ function drawAllFromServer(data) {
       ellipse(data.players[id].x, data.players[id].y, data.players[id].size);
       fill(toColor(data.players[id].bottomColor));
       angleMode(DEGREES);
-      if (id === myID)
-        arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, atan2(mouseY - height / 2, mouseX - width / 2) + 90, atan2(mouseY - height / 2, mouseX - width / 2) - 90);
-      else
-        arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, 0, -180);
+      arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, data.players[id].direction + 90, data.players[id].direction - 90);
     } else if (id === myID) {
       textAlign(CENTER);
       fill(255);
@@ -92,8 +89,11 @@ function drawAllFromServer(data) {
     text('Waiting for more players to join the game...', width / 2, height / 2);
   }
   textAlign(LEFT, BASELINE);
-  if (mouseIsPressed)
-    socket.emit('requestFire', { dir: atan2(mouseY - height / 2, mouseX - width / 2), key: mouseButton });
+  if (mouseIsPressed) {
+    socket.emit('requestFire', { key: mouseButton });
+  }
+  let dir = atan2(mouseY - height / 2, mouseX - width / 2);
+  socket.emit('dir', { dir: dir });
 }
 
 
@@ -107,7 +107,7 @@ function setup() {
 }
 
 function mouseWheel(event) {
-  if (event.delta > 0) { //weapon slot down
+  if (event.delta < 0) { //weapon slot down
     selected--;
     if (selected < 1)
       selected = 5;

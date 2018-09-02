@@ -4,24 +4,24 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const fs = require('fs');
 const World = require('./world');
-const tickrate = 50;
-const beforeGameTimer = 10;
 
 let width = 2000,
   height = 1500,
   items = Math.floor((width * height) / 100000);
-let status = {
-  timeToRound: beforeGameTimer * tickrate,
-  tickrate: tickrate,
-  beforeGameTimer: beforeGameTimer
-};
 
-let playersAlive = 0;
+let status = {
+  tickrate: 50,
+  beforeGameTimer: 10,
+  timeToRound: Infinity,
+  playersAlive: 0
+};
+status.timeToRound = status.tickrate * status.beforeGameTimer;
+
 let players = {};
 let ids = [];
+let bullets = [];
 let world = new World(width, height, items);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
-let bullets = [];
 
 //helper methods
 function diff(num1, num2) {
@@ -48,14 +48,14 @@ function map(n, start1, stop1, start2, stop2) {
 };
 
 function resetRound() {
-  status.timeToRound = beforeGameTimer * tickrate;
+  status.timeToRound = status.beforeGameTimer * status.tickrate;
   bullets = [];
   world = new World(width, height, items);
-  playersAlive = 0;
+  status.playersAlive = 0;
   for (id of ids) {
     players[id] = new Player(random(width), random(height), id);
     players[id].alive = true;
-    playersAlive++;
+    status.playersAlive++;
   }
 }
 
@@ -108,9 +108,54 @@ function Player(x, y, id) {
   this.usingConsumable = false;
   this.sinceUse = 0;
 
-  this.fire = function(dir) {
+  this.update = function() {
+    this.checkCollision();
+    this.sinceLastShot++;
+    if (this.reloading) {
+      this.sinceReload++;
+      if (this.sinceReload > this.selectedItem().reloadTime) {
+        this.reloading = false;
+        this.selectedItem().loaded = this.selectedItem().magSize;
+      }
+    } else {
+      this.sinceReload = 0;
+    }
+    if (this.usingConsumable) {
+      this.sinceUse++;
+      if (this.sinceUse > this.selectedItem().useTime) {
+        this.usingConsumable = false;
+        if (this.selectedItem().health) {
+          this.health = 100;
+        }
+        if (this.selectedItem().shield) {
+          this.shield = 100;
+        }
+        this.items[this.selected] = null;
+      }
+    } else {
+      this.sinceUse = 0;
+    }
+    if (this.movement[0] && this.y > 0) {
+      this.y -= this.speed;
+      this.usingConsumable = false;
+    }
+    if (this.movement[1] && this.y < height) {
+      this.y += this.speed;
+      this.usingConsumable = false;
+    }
+    if (this.movement[2] && this.x > 0) {
+      this.x -= this.speed;
+      this.usingConsumable = false;
+    }
+    if (this.movement[3] && this.x < width) {
+      this.x += this.speed;
+      this.usingConsumable = false;
+    }
+  }
+
+  this.fire = function() {
     if (this.selectedItem().loaded > 0 && !this.reloading) {
-      bullets.push(new Bullet(this.x, this.y, dir, this.id, this.selectedItem()));
+      bullets.push(new Bullet(this.x, this.y, this.direction, this.id, this.selectedItem()));
       this.selectedItem().loaded--;
     }
   }
@@ -165,7 +210,6 @@ function Player(x, y, id) {
       let bullet = bullets[i];
       if (bullet.shooter !== this.id) {
         if (dist(this.x, this.y, bullet.x, bullet.y) < this.size / 2 + bullet.size / 2) {
-          console.log(i);
           this.shield -= bullet.getDamage();
           if (this.shield < 0) {
             this.health += this.shield;
@@ -175,7 +219,7 @@ function Player(x, y, id) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
             this.alive = false;
-            playersAlive--;
+            status.playersAlive--;
             this.dropAllItems();
           }
           bullets.splice(i, 1);
@@ -230,21 +274,25 @@ io.on('connection', function(socket) {
   addPlayer(socket.id);
   if (status.timeToRound > 0) {
     players[socket.id].alive = true;
-    playersAlive++;
+    status.playersAlive++;
   }
 
   socket.on('disconnect', function() {
     console.log('user disconnected');
     if (players[socket.id].alive) {
-      playersAlive--;
+      status.playersAlive--;
     }
     removePlayer(socket.id);
   });
 
+  socket.on('dir', function(dir) {
+    players[socket.id].direction = dir.dir;
+  })
+
   socket.on('requestFire', function(mouse) {
     if (players[socket.id].selectedItem()) {
       if (players[socket.id].selectedItem().magSize && players[socket.id].sinceLastShot > players[socket.id].selectedItem().fireCooldown) { //if holding a weapon and the fire rate is under control
-        players[socket.id].fire(mouse.dir);
+        players[socket.id].fire();
         players[socket.id].sinceLastShot = 0;
       }
       if (players[socket.id].selectedItem().health !== undefined) { //holding a consumable
@@ -294,62 +342,21 @@ setInterval(function() {
     for (id of ids) {
       let player = players[id];
       if (player.alive) {
-        player.checkCollision();
-        player.sinceLastShot++;
-        if (player.reloading) {
-          player.sinceReload++;
-          if (player.sinceReload > player.selectedItem().reloadTime) {
-            player.reloading = false;
-            player.selectedItem().loaded = player.selectedItem().magSize;
-          }
-        } else {
-          player.sinceReload = 0;
-        }
-        if (player.usingConsumable) {
-          player.sinceUse++;
-          if (player.sinceUse > player.selectedItem().useTime) {
-            player.usingConsumable = false;
-            if (player.selectedItem().health) {
-              player.health = 100;
-            }
-            if (player.selectedItem().shield) {
-              player.shield = 100;
-            }
-            player.items[player.selected] = null;
-          }
-        } else {
-          player.sinceUse = 0;
-        }
-        if (player.movement[0] && player.y > 0) {
-          player.y -= player.speed;
-          player.usingConsumable = false;
-        }
-        if (player.movement[1] && player.y < height) {
-          player.y += player.speed;
-          player.usingConsumable = false;
-        }
-        if (player.movement[2] && player.x > 0) {
-          player.x -= player.speed;
-          player.usingConsumable = false;
-        }
-        if (player.movement[3] && player.x < width) {
-          player.x += player.speed;
-          player.usingConsumable = false;
-        }
-      }
-      for (bullet of bullets) {
-        bullet.update();
+        player.update();
       }
     }
-    if (playersAlive < 2) { //we have a winner
+    for (bullet of bullets) {
+      bullet.update();
+    }
+    if (status.playersAlive < 2) { //we have a winner
       resetRound();
     }
   } else { //lobby mode
     if (ids.length > 1) {
       status.timeToRound--;
     } else {
-      status.timeToRound = beforeGameTimer * tickrate;
+      status.timeToRound = status.beforeGameTimer * status.tickrate;
     }
   }
   io.emit('data', { status: status, players: players, ids: ids, world: world, bullets: bullets });
-}, 1000 / tickrate);
+}, 1000 / status.tickrate);
