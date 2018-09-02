@@ -77,9 +77,9 @@ function Bullet(x, y, dir, id, weapon) {
   this.size = 10;
   this.x = x;
   this.y = y;
+  this.weaponType = weapon;
   this.direction = dir + map((Math.random() - .5), -.5, .5, -this.weaponType.accuracy, this.weaponType.accuracy);
   this.shooter = id;
-  this.weaponType = weapon;
   this.speed = this.weaponType.bulletSpeed;
   this.age = 0;
 
