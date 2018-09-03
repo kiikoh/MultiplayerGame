@@ -11,7 +11,7 @@ let width = 2000,
 
 let status = {
   tickrate: 50,
-  beforeGameTimer: 10,
+  beforeGameTimer: 5,
   timeToRound: Infinity,
   playersAlive: 0,
   names: [],
@@ -34,16 +34,16 @@ function diff(num1, num2) {
   }
 };
 
-function random(highest) {
-  return Math.floor(highest * Math.random());
-}
-
 function dist(x1, y1, x2, y2) {
   var dX = diff(x1, x2);
   var dY = diff(y1, y2);
   var dist = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
   return (dist);
 };
+
+function random(highest) {
+  return Math.floor(highest * Math.random());
+}
 
 function map(n, start1, stop1, start2, stop2) {
   return ((n - start1) / (stop1 - start1)) * (stop2 - start2) + start2;
@@ -265,10 +265,12 @@ function Player(x, y, id) {
   }
 }
 
+//runs the server
 app.use("/client", express.static(__dirname + '/client'));
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/client/index.html');
 });
+
 //If running on heroku else use localhost:3000
 if (process.env.PORT) {
   http.listen(process.env.PORT, function(x) {
@@ -280,8 +282,8 @@ if (process.env.PORT) {
   });
 }
 
+//when a user connects
 io.on('connection', function(socket) {
-  console.log('a user connected');
   io.to(socket.id).emit('id', { sockId: socket.id });
   addPlayer(socket.id);
 
@@ -320,7 +322,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('pressedKey', function(key) {
-    key = key.key.toUpperCase();
+    key = Number.isInteger(key.key) ? key.key : key.key.toUpperCase();
     if (key === 'W') {
       players[socket.id].movement[0] = true;
     } else if (key === 'S') {
@@ -357,31 +359,31 @@ io.on('connection', function(socket) {
 
 //main server method
 setInterval(function() {
-  if (status.timeToRound < 0) {
+  if (status.timeToRound < 0) { //round is active
     for (id of ids) {
       let player = players[id];
-      if (player.alive) {
+      if (player.alive) { //update each living player
         player.update();
       }
     }
-    for (bullet of bullets) {
+    for (bullet of bullets) { //each bullet update
       bullet.update();
     }
     if (status.playersAlive < 2) { //we have a winner
       for (id of ids) {
         let player = players[id];
         if (player.alive) {
-          status.lastWinner = player.name;
+          status.lastWinner = player.name; //get the last living player
         }
       }
       resetRound();
     }
   } else { //lobby mode
-    if (status.names.length > 1) {
+    if (status.names.length > 1) { //if there are enough players for a game to be played
       status.timeToRound--;
     } else {
       status.timeToRound = status.beforeGameTimer * status.tickrate;
     }
   }
-  io.emit('data', { status: status, players: players, ids: ids, world: world, bullets: bullets });
-}, 1000 / status.tickrate);
+  io.emit('data', { status: status, players: players, ids: ids, world: world, bullets: bullets }); //sending all the data
+}, 1000 / status.tickrate); //updates at the tickrate
