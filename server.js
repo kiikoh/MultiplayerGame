@@ -320,7 +320,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('pressedKey', function(key) {
-    key = key.key;
+    key = key.key.toUpperCase();
     if (key === 'W') {
       players[socket.id].movement[0] = true;
     } else if (key === 'S') {
@@ -342,7 +342,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('releasedKey', function(key) {
-    key = key.key;
+    key = key.key.toUpperCase();
     if (key === 'W') {
       players[socket.id].movement[0] = false;
     } else if (key === 'S') {
