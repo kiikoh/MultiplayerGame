@@ -157,6 +157,15 @@ function keyPressed() {
   }
 }
 
+function mouseReleased() {
+  if (mouseY > height - hud.invBarSize / 5 && mouseX > width - hud.invBarSize) {
+    selected = width + mouseX - hud.invBarSize;
+    selected = floor(selected / (hud.invBarSize / 5));
+    selected -= 19;
+    socket.emit('pressedKey', { key: selected });
+  }
+}
+
 function keyReleased() {
   if (keyCode === 16) {
     holdingShift = false;
