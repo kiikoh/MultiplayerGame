@@ -69,6 +69,9 @@ function map(n, start1, stop1, start2, stop2) {
 //adds the player by id
 function addPlayer(id) {
   players[id] = new Player(random(width), random(height), id);
+  while (players[id].collidingWithAnyStructure()) {
+    players[id] = new Player(random(width), random(height), id);
+  }
   ids.push(id);
 }
 
@@ -175,40 +178,37 @@ function Player(x, y, id) {
     }
     if (this.movement[0] && this.y > 0) {
       this.y -= this.speed;
-      for (structure of world.structures) {
-        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
-          this.y += this.speed;
-          break;
-        }
+      if (this.collidingWithAnyStructure()) {
+        this.y += this.speed;
       }
     }
     if (this.movement[1] && this.y < height) {
       this.y += this.speed;
-      for (structure of world.structures) {
-        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
-          this.y -= this.speed;
-          break;
-        }
+      if (this.collidingWithAnyStructure()) {
+        this.y -= this.speed;
       }
     }
     if (this.movement[2] && this.x > 0) {
       this.x -= this.speed;
-      for (structure of world.structures) {
-        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
-          this.x += this.speed;
-          break;
-        }
+      if (this.collidingWithAnyStructure()) {
+        this.x += this.speed;
       }
     }
     if (this.movement[3] && this.x < width) {
       this.x += this.speed;
-      for (structure of world.structures) {
-        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
-          this.x -= this.speed;
-          break;
-        }
+      if (this.collidingWithAnyStructure()) {
+        this.x -= this.speed;
       }
     }
+  }
+
+  this.collidingWithAnyStructure = function() {
+    for (structure of world.structures) {
+      if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   this.checkCollision = function() {
