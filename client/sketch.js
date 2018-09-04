@@ -20,7 +20,6 @@ socket.on('connect', function() {
       hud.player = data.players[myID];
       hud.status = data.status;
       if (data.players[myID].name === 'Anonymous') { //if server has no player name
-        input.show();
         background(170);
         textAlign(CENTER, CENTER);
         textSize(96);
@@ -164,7 +163,7 @@ function keyPressed() {
     if (keyCode === 13) {
       name = input.value();
       socket.emit('join', { name: name });
-      input.hide();
+      input.remove();
       namePicked = true;
     }
   }
