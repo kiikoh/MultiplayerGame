@@ -20,6 +20,7 @@ socket.on('connect', function() {
       hud.player = data.players[myID];
       hud.status = data.status;
       if (data.players[myID].name === 'Anonymous') { //if server has no player name
+        input.show();
         background(170);
         textAlign(CENTER, CENTER);
         textSize(96);
@@ -83,6 +84,18 @@ function drawAllFromServer(data) {
       image(images[item.item.name], item.x - size, item.y - size, 2 * size, 2 * size);
     }
   }
+  for (structure of data.world.structures) {
+    if (structure.health > 0) {
+      if (structure.type.includes('Wall')) { //is a wall object
+        fill(toColor(structure));
+        line(structure.x, structure.y, structure.x + structure.width, structure.y + structure.height);
+      } else {
+        fill(toColor(structure));
+        ellipse(structure.x, structure.y, structure.width, structure.height);
+      }
+    }
+  }
+
   for (bullet of data.bullets) {
     fill(toColor(bullet.weaponType));
     ellipse(bullet.x, bullet.y, bullet.size, bullet.size);
@@ -151,7 +164,7 @@ function keyPressed() {
     if (keyCode === 13) {
       name = input.value();
       socket.emit('join', { name: name });
-      input.remove();
+      input.hide();
       namePicked = true;
     }
   }

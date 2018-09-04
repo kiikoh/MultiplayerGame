@@ -25,6 +25,23 @@ let bullets = [];
 let world = new World(width, height, items);
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 
+//runs the server
+app.use("/client", express.static(__dirname + '/client'));
+app.get('/', function(req, res) {
+  res.sendFile(__dirname + '/client/index.html');
+});
+
+//If running on heroku else use localhost:3000
+if (process.env.PORT) {
+  http.listen(process.env.PORT, function(x) {
+    console.log('Server running');
+  });
+} else {
+  http.listen(3000, function(x) {
+    console.log('Server running on localhost:' + 3000);
+  });
+}
+
 //helper methods
 function diff(num1, num2) {
   if (num1 > num2) {
@@ -158,19 +175,39 @@ function Player(x, y, id) {
     }
     if (this.movement[0] && this.y > 0) {
       this.y -= this.speed;
-      this.usingConsumable = false;
+      for (structure of world.structures) {
+        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
+          this.y += this.speed;
+          break;
+        }
+      }
     }
     if (this.movement[1] && this.y < height) {
       this.y += this.speed;
-      this.usingConsumable = false;
+      for (structure of world.structures) {
+        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
+          this.y -= this.speed;
+          break;
+        }
+      }
     }
     if (this.movement[2] && this.x > 0) {
       this.x -= this.speed;
-      this.usingConsumable = false;
+      for (structure of world.structures) {
+        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
+          this.x += this.speed;
+          break;
+        }
+      }
     }
     if (this.movement[3] && this.x < width) {
       this.x += this.speed;
-      this.usingConsumable = false;
+      for (structure of world.structures) {
+        if (structure.health > 0 && structure.collidingWith(this.x, this.y, this.size / 2)) {
+          this.x -= this.speed;
+          break;
+        }
+      }
     }
   }
 
@@ -265,21 +302,19 @@ function Player(x, y, id) {
   }
 }
 
-//runs the server
-app.use("/client", express.static(__dirname + '/client'));
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/client/index.html');
-});
-
-//If running on heroku else use localhost:3000
-if (process.env.PORT) {
-  http.listen(process.env.PORT, function(x) {
-    console.log('Server running');
-  });
-} else {
-  http.listen(3000, function(x) {
-    console.log('Server running on localhost:' + 3000);
-  });
+function checkCollisionsWithStructures() {
+  for (let i = world.structures.length - 1; i >= 0; i--) {
+    let structure = world.structures[i];
+    if (structure.health > 0) {
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        let bullet = bullets[i];
+        if (structure.collidingWith(bullet.x, bullet.y, bullet.size)) {
+          structure.health -= bullet.getDamage();
+          bullets.splice(i, 1);
+        }
+      }
+    }
+  }
 }
 
 //when a user connects
@@ -369,6 +404,7 @@ setInterval(function() {
     for (bullet of bullets) { //each bullet update
       bullet.update();
     }
+    checkCollisionsWithStructures();
     if (status.playersAlive < 2) { //we have a winner
       for (id of ids) {
         let player = players[id];

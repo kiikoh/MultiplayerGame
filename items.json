@@ -118,5 +118,25 @@
       "g": 160,
       "b": 35
     }
+  },
+  "structures":{
+    "barrel":{
+      "type":"barrel",
+      "width": 75,
+      "height": 75,
+      "health": 200,
+      "r": 90,
+      "g": 45,
+      "b": 20
+    },
+    "bush":{
+      "type":"bush",
+      "width": 100,
+      "height": 100,
+      "health": 99999999,
+      "r": 100,
+      "g": 170,
+      "b": 100
+    }
   }
 }

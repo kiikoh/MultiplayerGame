@@ -1,4 +1,5 @@
 const fs = require('fs');
+const Structure = require('./structure');
 let itemsList = JSON.parse(fs.readFileSync('items.json', 'utf8'));
 
 function random(highest) {
@@ -36,10 +37,15 @@ module.exports =
 
     for (var i = 0; i < this.items.length; i++) {
       this.items[i] = {
-        x: Math.random() * width,
-        y: Math.random() * height,
+        x: random(width),
+        y: random(height),
         item: this.generateItem()
       };
+    }
+
+    for (let i = 0; i < 10; i++) {
+      let type = JSON.parse(JSON.stringify(itemsList.structures[Math.random() > 0.25 ? 'barrel' : 'bush']));
+      this.structures.push(new Structure(random(width), random(height), type));
     }
 
   }
