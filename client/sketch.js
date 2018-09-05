@@ -8,7 +8,8 @@ let width,
 let selected = 1;
 let name = '';
 let namePicked = false;
-let canvas, input;
+let canvas, input, source;
+let github;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -19,13 +20,17 @@ socket.on('connect', function() {
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
       hud.status = data.status;
-      if (!namePicked) { //if server has no player name
-        background(170);
+      if (!namePicked) { //if server has no player name // MENU Screen
+        background(170, 50, 50);
         textAlign(CENTER, CENTER);
+        fill(240);
+        strokeWeight(5);
+        stroke(30);
         textSize(96);
         text('Welcome to CHS Royale', width / 2, height / 8);
         textAlign(LEFT, BASELINE);
         input.position(width / 2 - input.width / 2, height / 2 - input.height / 2);
+        source.position(width - source.width - 20, height - source.height - 20);
       } else {
         noCursor();
         drawAllFromServer(data);
@@ -36,6 +41,7 @@ socket.on('connect', function() {
 
 function preload() {
   let path = 'client/images/'
+  // github = loadImage(path + 'github.png');
   images.AR = loadImage(path + 'ar.png');
   images.SMG = loadImage(path + 'smg.png');
   images.Pistol = loadImage(path + 'pistol.png');
@@ -135,6 +141,9 @@ function setup() {
   input.style('border-radius', '37px');
   input.style('text-align', 'center');
   input.style('border', '2px solid grey');
+  source = createImg('client/images/' + 'github.png');
+  source.attribute('onClick', 'javascript:window.location.href = \'https://github.com/kiikoh/MultiplayerGame\'');
+  source.size(150, 150);
 }
 
 function mouseWheel(event) {
@@ -164,6 +173,7 @@ function keyPressed() {
       name = input.value();
       socket.emit('join', { name: name });
       input.remove();
+      source.remove();
       namePicked = true;
     }
   }

@@ -1,0 +1,7 @@
+{
+  "name": "A BattleRoyale Server",
+  "description": "Host your own ",
+  "repository": "https://github.com/kiikoh/MultiplayerGame",
+  "logo": "https://i.imgur.com/mBQApPE.png",
+  "keywords": ["node", "express", "static", "battle-royale", "multiplayer", "online"]
+}
