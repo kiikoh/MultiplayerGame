@@ -6,4 +6,5 @@ I made this game for people to be able to play during free time in school. Right
 
 
 Just click the button below after signing up at heroku and you will now own your own private server!
+
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
