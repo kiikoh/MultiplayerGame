@@ -16,7 +16,6 @@ socket.on('connect', function() {
     console.log(myID);
   });
   socket.on('data', function(data) {
-    console.log(data);
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
       hud.status = data.status;

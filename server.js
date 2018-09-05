@@ -89,11 +89,13 @@ function resetRound() {
   world = new World(width, height, items);
   status.playersAlive = 0;
   for (id of ids) {
-    let name = players[id].name;
-    players[id] = new Player(random(width), random(height), id);
-    players[id].alive = true;
-    players[id].name = name;
-    status.playersAlive++;
+    if (players[id].name != '') {
+      let name = players[id].name;
+      players[id] = new Player(random(width), random(height), id);
+      players[id].alive = true;
+      players[id].name = name;
+      status.playersAlive++;
+    }
   }
 }
 
@@ -128,7 +130,7 @@ function Bullet(x, y, dir, id, weapon) {
 function Player(x, y, id) {
   this.alive = false;
   this.id = id;
-  this.name = 'Anonymous';
+  this.name = '';
   this.x = x;
   this.y = y;
   this.direction = 90;
@@ -148,6 +150,7 @@ function Player(x, y, id) {
   this.sinceUse = 0;
   this.reloading = false;
   this.sinceReload = 0;
+  // this.hasMovedThisRound = false;
 
   this.update = function() {
     this.checkCollision();
@@ -181,24 +184,28 @@ function Player(x, y, id) {
       if (this.collidingWithAnyStructure()) {
         this.y += this.speed;
       }
+      // this.hasMovedThisRound = true;
     }
     if (this.movement[1] && this.y < height) {
       this.y += this.speed;
       if (this.collidingWithAnyStructure()) {
         this.y -= this.speed;
       }
+      // this.hasMovedThisRound = true;
     }
     if (this.movement[2] && this.x > 0) {
       this.x -= this.speed;
       if (this.collidingWithAnyStructure()) {
         this.x += this.speed;
       }
+      // this.hasMovedThisRound = true;
     }
     if (this.movement[3] && this.x < width) {
       this.x += this.speed;
       if (this.collidingWithAnyStructure()) {
         this.x -= this.speed;
       }
+      // this.hasMovedThisRound = true;
     }
   }
 
