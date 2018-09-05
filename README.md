@@ -1,5 +1,5 @@
 # MultiplayerGame
-My Node.js Game
+A game written in Node.js using websockets.
 
 
 I made this game for people to be able to play during free time in school. Right now it only has one server, but using this code you can instantly create another one using heroku.
