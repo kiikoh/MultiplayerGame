@@ -19,7 +19,7 @@ socket.on('connect', function() {
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
       hud.status = data.status;
-      if (data.players[myID].name === 'Anonymous') { //if server has no player name
+      if (namePicked) { //if server has no player name
         background(170);
         textAlign(CENTER, CENTER);
         textSize(96);
