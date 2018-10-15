@@ -376,7 +376,7 @@ io.on('connection', function(socket) {
   });
 
   socket.on('dir', function(dir) {
-    if (dir)
+    if (players[socket.id])
       players[socket.id].direction = dir.dir;
   })
 

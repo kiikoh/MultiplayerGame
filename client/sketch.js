@@ -69,6 +69,12 @@ function drawAllFromServer(data) {
       strokeWeight(1);
       fill(toColor(data.players[id].topColor));
       ellipse(data.players[id].x, data.players[id].y, data.players[id].size);
+      if (id !== myID) {
+        textSize(32);
+        fill(90);
+        textAlign(CENTER);
+        text(data.players[id].name, data.players[id].x, data.players[id].y - data.players[id].size / 2 - textSize());
+      }
       fill(toColor(data.players[id].bottomColor));
       angleMode(DEGREES);
       arc(data.players[id].x, data.players[id].y, data.players[id].size, data.players[id].size, data.players[id].direction + 90, data.players[id].direction - 90);
