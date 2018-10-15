@@ -69,9 +69,6 @@ function map(n, start1, stop1, start2, stop2) {
 //adds the player by id
 function addPlayer(id) {
   players[id] = new Player(random(width), random(height), id);
-  while (players[id].collidingWithAnyStructure()) {
-    players[id] = new Player(random(width), random(height), id);
-  }
   ids.push(id);
 }
 
@@ -92,6 +89,10 @@ function resetRound() {
     if (players[id].name != '') {
       let name = players[id].name;
       players[id] = new Player(random(width), random(height), id);
+      while (players[id].collidingWithAnyStructure()) {
+        players[id] = new Player(random(width), random(height), id);
+        console.log('movedBadSpawn');
+      }
       players[id].alive = true;
       players[id].name = name;
       status.playersAlive++;
@@ -137,8 +138,16 @@ function Player(x, y, id) {
   this.size = 75;
   this.speed = 10;
   this.movement = [false, false, false, false];
-  this.topColor = { r: random(255), g: random(255), b: random(255) };
-  this.bottomColor = { r: random(255), g: random(255), b: random(255) };
+  this.topColor = {
+    r: random(255),
+    g: random(255),
+    b: random(255)
+  };
+  this.bottomColor = {
+    r: random(255),
+    g: random(255),
+    b: random(255)
+  };
   this.health = 100;
   this.shield = 100;
   this.selected = 0; //an index of this.items
@@ -274,7 +283,11 @@ function Player(x, y, id) {
         world.items[this.getNearbyItemIndex()] = null;
         this.items[this.firstOpenSlot()] = item;
       } else {
-        let item = { x: this.x, y: this.y, item: this.items[this.selected] };
+        let item = {
+          x: this.x,
+          y: this.y,
+          item: this.items[this.selected]
+        };
         this.items[this.selected] = null;
         this.pickUpItem();
         world.items[world.items.indexOf(null)] = item;
@@ -284,7 +297,11 @@ function Player(x, y, id) {
 
   this.dropItemIndex = function(index) {
     if (this.items[index]) {
-      let item = { x: this.x, y: this.y, item: this.items[index] };
+      let item = {
+        x: this.x,
+        y: this.y,
+        item: this.items[index]
+      };
       world.items[world.items.indexOf(null)] = item;
       this.items[index] = null;
     }
@@ -300,7 +317,11 @@ function Player(x, y, id) {
     if (itemDropper[0]) {
       for (let index = 0; index < itemDropper.length; index++) {
         if (itemDropper[index]) {
-          let item = { x: this.x + 60 * Math.cos(index * (2 * Math.PI) / itemDropper.length), y: this.y + 60 * Math.sin(index * (2 * Math.PI) / itemDropper.length), item: itemDropper[index] };
+          let item = {
+            x: this.x + 60 * Math.cos(index * (2 * Math.PI) / itemDropper.length),
+            y: this.y + 60 * Math.sin(index * (2 * Math.PI) / itemDropper.length),
+            item: itemDropper[index]
+          };
           world.items[world.items.indexOf(null)] = item;
           itemDropper[index] = null;
         }
@@ -326,7 +347,9 @@ function checkCollisionsWithStructures() {
 
 //when a user connects
 io.on('connection', function(socket) {
-  io.to(socket.id).emit('id', { sockId: socket.id });
+  io.to(socket.id).emit('id', {
+    sockId: socket.id
+  });
   addPlayer(socket.id);
 
   socket.on('join', function(data) {
@@ -428,5 +451,11 @@ setInterval(function() {
       status.timeToRound = status.beforeGameTimer * status.tickrate;
     }
   }
-  io.emit('data', { status: status, players: players, ids: ids, world: world, bullets: bullets }); //sending all the data
+  io.emit('data', JSON.stringify({
+    status: status,
+    players: players,
+    ids: ids,
+    world: world,
+    bullets: bullets
+  })); //sending all the data
 }, 1000 / status.tickrate); //updates at the tickrate

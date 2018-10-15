@@ -17,6 +17,7 @@ socket.on('connect', function() {
     console.log(myID);
   });
   socket.on('data', function(data) {
+    data = JSON.parse(data);
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
       hud.status = data.status;
@@ -122,10 +123,14 @@ function drawAllFromServer(data) {
   }
   textAlign(LEFT, BASELINE);
   if (mouseIsPressed) {
-    socket.emit('requestFire', { key: mouseButton });
+    socket.emit('requestFire', {
+      key: mouseButton
+    });
   }
   let dir = atan2(mouseY - height / 2, mouseX - width / 2);
-  socket.emit('dir', { dir: dir });
+  socket.emit('dir', {
+    dir: dir
+  });
 }
 
 function setup() {
@@ -151,12 +156,16 @@ function mouseWheel(event) {
     selected--;
     if (selected < 1)
       selected = 5;
-    socket.emit('pressedKey', { key: selected });
+    socket.emit('pressedKey', {
+      key: selected
+    });
   } else { //weapon slot up
     selected++;
     if (selected > 5)
       selected = 1;
-    socket.emit('pressedKey', { key: selected });
+    socket.emit('pressedKey', {
+      key: selected
+    });
   }
 }
 
@@ -167,11 +176,15 @@ function keyPressed() {
     if (0 < key && key < 6) {
       selected = key;
     }
-    socket.emit('pressedKey', { key: key });
+    socket.emit('pressedKey', {
+      key: key
+    });
   } else {
     if (keyCode === 13) {
       name = input.value();
-      socket.emit('join', { name: name });
+      socket.emit('join', {
+        name: name
+      });
       input.remove();
       source.remove();
       namePicked = true;
@@ -184,7 +197,9 @@ function mouseReleased() {
     selected = width + mouseX - hud.invBarSize;
     selected = floor(selected / (hud.invBarSize / 5));
     selected -= 19;
-    socket.emit('pressedKey', { key: selected });
+    socket.emit('pressedKey', {
+      key: selected
+    });
   }
 }
 
@@ -192,6 +207,8 @@ function keyReleased() {
   if (keyCode === 16) {
     holdingShift = false;
   }
-  socket.emit('releasedKey', { key: key });
+  socket.emit('releasedKey', {
+    key: key
+  });
 
 }
