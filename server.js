@@ -101,7 +101,7 @@ function resetRound() {
   }
   width = status.playersAlive * 500 + 1000;
   height = width * 3 / 4;
-  items = Math.floor((width * height) / 500000)
+  items = Math.floor((width * height) / 100000);
   world = new World(width, height, items);
 }
 
