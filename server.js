@@ -101,6 +101,7 @@ function resetRound() {
   }
   width = status.playersAlive * 500 + 1000;
   height = width * 3 / 4;
+  items = Math.floor((width * height) / 500000)
   world = new World(width, height, items);
 }
 
@@ -375,7 +376,8 @@ io.on('connection', function(socket) {
   });
 
   socket.on('dir', function(dir) {
-    players[socket.id].direction = dir.dir;
+    if (dir)
+      players[socket.id].direction = dir.dir;
   })
 
   socket.on('requestFire', function(mouse) {
