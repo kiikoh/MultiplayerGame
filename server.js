@@ -69,6 +69,9 @@ function map(n, start1, stop1, start2, stop2) {
 //adds the player by id
 function addPlayer(id) {
   players[id] = new Player(random(width), random(height), id);
+  while (players[id].collidingWithAnyStructure()) {
+    players[id] = new Player(random(width), random(height), id);
+  }
   ids.push(id);
 }
 
@@ -83,7 +86,6 @@ function removePlayer(id) {
 function resetRound() {
   status.timeToRound = status.beforeGameTimer * status.tickrate;
   bullets = [];
-  world = new World(width, height, items);
   status.playersAlive = 0;
   for (id of ids) {
     if (players[id].name != '') {
@@ -91,13 +93,15 @@ function resetRound() {
       players[id] = new Player(random(width), random(height), id);
       while (players[id].collidingWithAnyStructure()) {
         players[id] = new Player(random(width), random(height), id);
-        console.log('movedBadSpawn');
       }
       players[id].alive = true;
       players[id].name = name;
       status.playersAlive++;
     }
   }
+  width = status.playersAlive * 500 + 1000;
+  height = width * 3 / 4;
+  world = new World(width, height, items);
 }
 
 //A bullet object
