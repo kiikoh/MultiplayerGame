@@ -407,9 +407,9 @@ io.on('connection', function(socket) {
       players[socket.id].movement[2] = true;
     } else if (key === 'D') {
       players[socket.id].movement[3] = true;
-    } else if (key === 'F' && !players[socket.id].reloading) {
+    } else if (key === 'F' || key === 'E' && !players[socket.id].reloading && !players[socket.id].usingConsumable) {
       players[socket.id].pickUpItem();
-    } else if (key === 'G' && !players[socket.id].reloading) {
+    } else if (key === 'G' && !players[socket.id].reloading && !players[socket.id].usingConsumable) {
       players[socket.id].dropItemIndex(players[socket.id].selected);
     } else if (key === 'R') {
       if (players[socket.id].selectedItem() && players[socket.id].selectedItem().magSize !== players[socket.id].selectedItem().loaded)
