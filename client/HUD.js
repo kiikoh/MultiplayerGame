@@ -1,9 +1,41 @@
+function KillFeed() {
+
+  this.maxTime = 240;
+  this.kills = [];
+  this.remainingTime = [];
+
+  this.addKill = function(data) {
+    this.kills.push(data);
+    this.remainingTime.push(this.maxTime);
+  }
+
+  this.update = function() {
+    for (let i = this.remainingTime.length - 1; i >= 0; i--) {
+      this.remainingTime[i]--;
+      if (this.remainingTime[i] <= 0) {
+        this.kills.shift();
+        this.remainingTime.shift();
+      }
+    }
+  }
+
+  this.show = function() {
+    push();
+    for (let i = 0; i < this.kills.length; i++) {
+      let kill = this.kills[i];
+      textSize(24);
+      noStroke();
+      textAlign(RIGHT);
+      text("" + kill.shooter + " killed " + kill.victim + " with " + kill.weapon.name, width - 10, 50 * (i + 1));
+    }
+    pop();
+  }
+}
+
 function HUD() {
   this.player = null;
   this.status = null;
   this.invBarSize = width / 3;
-
-
   this.show = function() {
     //Inv bar
     if (this.player) {
@@ -39,7 +71,9 @@ function HUD() {
       // fill(255);
       // text('FPS : ' + Math.floor(frameRate()), 10, 25);
       //last round winner
+      textAlign(LEFT);
       fill(255);
+      noStroke();
       text('Last Winner : ' + this.status.lastWinner, 10, 25);
       //healthbars
       strokeWeight(2);

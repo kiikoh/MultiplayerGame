@@ -245,6 +245,11 @@ function Player(x, y, id) {
           if (this.health <= 0 && this.alive) {
             this.health = 0;
             players[bullet.shooter].kills.push(this.id);
+            io.emit('killFeed', {
+              shooter: players[bullet.shooter].name,
+              victim: this.name,
+              weapon: bullet.weaponType
+            })
             this.alive = false;
             status.playersAlive--;
             this.dropAllItems();

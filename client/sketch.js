@@ -10,6 +10,7 @@ let name = '';
 let namePicked = false;
 let canvas, input, source;
 let github;
+let feed;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -35,10 +36,19 @@ socket.on('connect', function() {
       } else {
         noCursor();
         drawAllFromServer(data);
+        feed.update();
+        feed.show();
       }
     }
   });
+
+  socket.on('killFeed', function(data) {
+    feed.addKill(data);
+  });
 });
+
+
+
 
 function preload() {
   let path = 'client/images/'
@@ -145,6 +155,7 @@ function setup() {
   height = windowHeight;
   hud = new HUD();
   canvas = createCanvas(width, height);
+  canvas.attribute("oncontextmenu", "return false;");
   input = createInput().size(600, 75);
   input.attribute('placeholder', 'Enter your name.');
   input.attribute('autofocus', 'true');
@@ -155,6 +166,7 @@ function setup() {
   source = createImg('client/images/' + 'github.png');
   source.attribute('onClick', 'javascript:window.location.href = \'https://github.com/kiikoh/MultiplayerGame\'');
   source.size(150, 150);
+  feed = new KillFeed();
 }
 
 function mouseWheel(event) {
