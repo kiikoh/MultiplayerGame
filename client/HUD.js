@@ -77,6 +77,7 @@ function HUD() {
       text('Last Winner : ' + this.status.lastWinner, 10, 25);
       //healthbars
       strokeWeight(2);
+      stroke(0);
       fill(0);
       rect(width / 2 - 100, height - 50, 200, 25);
       rect(width / 2 - 100, height - 80, 200, 25);
