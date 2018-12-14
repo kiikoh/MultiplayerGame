@@ -11,6 +11,8 @@ let namePicked = false;
 let canvas, input, source;
 let github;
 let feed;
+let spectatingIndex = 0;
+let dataG;
 
 socket.on('connect', function() {
   socket.on('id', function(socketId) {
@@ -19,6 +21,7 @@ socket.on('connect', function() {
   });
   socket.on('data', function(data) {
     data = JSON.parse(data);
+    dataG = data;
     if (ready) { //p5 has loaded
       hud.player = data.players[myID];
       hud.status = data.status;
@@ -67,6 +70,10 @@ function toColor(obj) {
 }
 
 function drawAllFromServer(data) {
+  if (data.players[socket.id].alive) {
+    myID = socket.id;
+  }
+  // console.log(data);
   //draw grass
   background(25, 175, 25);
   // draw players
@@ -207,6 +214,15 @@ function keyPressed() {
       source.remove();
       namePicked = true;
     }
+  }
+}
+
+function mouseClicked() {
+  if (!dataG.players[socket.id].alive) {
+    spectatingIndex++;
+    spectatingIndex = spectatingIndex % Object.keys(dataG.players).length;;
+    console.log(spectatingIndex);
+    myID = dataG.ids[spectatingIndex];
   }
 }
 
