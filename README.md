@@ -8,7 +8,7 @@ Just click the button below after signing up at heroku and you will now own your
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ## How to Play
-* Once there is enough players the game will begin.
+* Once there are enough players the game will begin.
 * Move using W A S D.
 * Pick up items with F, and click to fire.
 
